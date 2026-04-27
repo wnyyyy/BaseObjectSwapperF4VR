@@ -1,8 +1,15 @@
 cmake_minimum_required(VERSION 3.21)
+set(NAME "po3_BaseObjectSwapperF4VR")
+set(VERSION 3.0.0)
+set(VR_VERSION 1)
+set(NG_VERSION 1)
 
 # ---- Options ----
 
-option(COPY_BUILD "Copy the build output to the Fallout 4 directory." TRUE)
+option(COPY_BUILD "Copy the build output to the Fallout 4 directory." FALSE)
+option(ENABLE_FALLOUT_F4 "Build for Fallout F4" OFF)
+option(ENABLE_FALLOUT_NG "Build for Fallout NG" ON)
+option(ENABLE_FALLOUT_VR "Build for Fallout VR" OFF)
 
 # ---- Cache build vars ----
 
@@ -12,9 +19,52 @@ macro(set_from_environment VARIABLE)
 	endif ()
 endmacro()
 
-set_from_environment(Fallout4Path)
+macro(find_commonlib_path)
+	if(CommonLibName AND NOT ${CommonLibName} STREQUAL "")
+		# Check extern
+		find_path(CommonLibPath
+			include/REL/Relocation.h
+			PATHS external/${CommonLibName}/${CommonLibName}
+			extern/${CommonLibName}/${CommonLibName})
+
+		if(${CommonLibPath} STREQUAL "CommonLibPath-NOTFOUND")
+			# Check path
+			set_from_environment(${CommonLibName}Path)
+			set(CommonLibPath ${${CommonLibName}Path})
+		endif()
+	endif()
+endmacro()
+
 set_from_environment(VCPKG_ROOT)
-set_from_environment(CommonLibF4Path)
+
+set(CommonLibName "CommonLibF4")
+
+if(ENABLE_FALLOUT_NG)
+	set_from_environment(Fallout4Path)
+	add_compile_definitions(ENABLE_FALLOUT_NG)
+	set(FalloutPath ${Fallout4Path})
+	set(FalloutVersion "Fallout 4 NG")
+	set(VERSION ${VERSION}.${NG_VERSION})
+elseif(ENABLE_FALLOUT_VR)
+	set_from_environment(Fallout4VRPath)
+	add_compile_definitions(ENABLE_FALLOUT_VR)
+	set(FalloutPath ${FalloutVRPath})
+	set(FalloutVersion "Fallout VR")
+	set(VERSION ${VERSION}.${VR_VERSION})
+else()
+	set_from_environment(Fallout4Path)
+	add_compile_definitions(ENABLE_FALLOUT_F4)
+	set(FalloutPath ${Fallout4Path})
+	set(FalloutVersion "Fallout 4")
+	set(VERSION ${VERSION}.0)
+endif()
+
+find_commonlib_path()
+
+message(
+	STATUS
+	"Building ${NAME} ${VERSION} for ${FalloutVersion} at ${FalloutPath} with ${CommonLibName} at ${CommonLibPath}."
+)
 
 if (DEFINED VCPKG_ROOT)
 	set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
@@ -75,14 +125,14 @@ set(Boost_USE_STATIC_LIBS ON)
 
 # ---- Dependencies ----
 
-if (DEFINED CommonLibF4Path AND NOT ${CommonLibF4Path} STREQUAL "" AND IS_DIRECTORY ${CommonLibF4Path})
-	add_subdirectory(${CommonLibF4Path} CommonLibF4)
-else ()
+if(DEFINED CommonLibPath AND NOT ${CommonLibPath} STREQUAL "" AND IS_DIRECTORY ${CommonLibPath})
+	add_subdirectory(${CommonLibPath} ${CommonLibName})
+else()
 	message(
 		FATAL_ERROR
-		"Variable CommonLibF4Path is not set."
+		"Variable ${CommonLibName}Path is not set."
 	)
-endif ()
+endif()
 
 find_path(SRELL_INCLUDE_DIRS "srell.hpp")
 find_path(CLIBUTIL_INCLUDE_DIRS "CLibUtil/string.hpp")
@@ -129,7 +179,7 @@ target_compile_definitions(
 target_compile_features(
 	${PROJECT_NAME}
 	PRIVATE
-		cxx_std_23
+		cxx_std_20
 )
 
 target_include_directories(
