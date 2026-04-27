@@ -9,7 +9,6 @@
 #pragma warning(push)
 #include "F4SE/F4SE.h"
 #include "RE/Fallout.h"
-#include "REX/REX/Singleton.h"
 
 #ifdef NDEBUG
 #	include <spdlog/sinks/basic_file_sink.h>
@@ -27,6 +26,7 @@
 #pragma warning(pop)
 
 #define DLLEXPORT __declspec(dllexport)
+#define FMT_ENFORCE_COMPILE_STRING
 
 namespace logger = F4SE::log;
 

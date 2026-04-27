@@ -243,8 +243,11 @@ namespace FormSwap
 			swapData = get_swap_base(a_base, swapForms);
 		}
 
+		using GetEncounterZone_t = RE::BGSEncounterZone* (*)(RE::TESObjectREFR*);
+		REL::Relocation<GetEncounterZone_t> GetEncounterZone{ REL::ID(1413642) };
+
 		if (const auto swapLvlBase = swapData.first ? swapData.first->As<RE::TESLevItem>() : nullptr) {
-			if (a_ref->GetEncounterZone() == nullptr) {
+			if (GetEncounterZone(a_ref) == nullptr) {
 				RE::BSScrapArray<RE::CALCED_OBJECT> calcedObjects{};
 				swapLvlBase->CalculateCurrentFormListForRef(a_ref, calcedObjects, false);
 				if (calcedObjects.size() > 0) {
