@@ -77,7 +77,7 @@ else ()
 endif ()
 
 set(Boost_USE_STATIC_RUNTIME OFF CACHE BOOL "")
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" CACHE STRING "")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "")
 
 # ---- Project ----
 
@@ -189,6 +189,14 @@ target_include_directories(
 		${CMAKE_CURRENT_SOURCE_DIR}/include
 		${SRELL_INCLUDE_DIRS}
 		${CLIBUTIL_INCLUDE_DIRS}
+)
+
+target_compile_definitions(
+    ${PROJECT_NAME}
+    PRIVATE
+        _UNICODE
+        _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING 
+        _CRT_SECURE_NO_WARNINGS
 )
 
 target_link_libraries(

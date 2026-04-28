@@ -24,7 +24,15 @@ void InitializeLog()
 
 	*path /= Version::PROJECT;
 	*path += ".log"sv;
-	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+
+	spdlog::sink_ptr sink;
+
+#ifdef NDEBUG
+	sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+#else
+	sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+	//sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
+#endif
 
 	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 

@@ -22,6 +22,7 @@
 #include <CLibUtil/simpleINI.hpp>
 #include <CLibUtil/string.hpp>
 #include <ankerl/unordered_dense.h>
+#include <spdlog/sinks/basic_file_sink.h>
 #include <srell.hpp>
 #pragma warning(pop)
 
