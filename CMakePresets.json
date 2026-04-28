@@ -114,7 +114,7 @@
     {
       "name": "vs2022-windows-vcpkg-vr",
       "configurePreset": "vs2022-windows-vcpkg-vr",
-      "configuration": "Debug"
+      "configuration": "Release"
     },
     {
       "name": "vs2022-windows-vcpkg-all",
